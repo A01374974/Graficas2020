@@ -105,6 +105,7 @@ async function loadObj(objModelUrl, objectList)
         object.name = "objObject";
         objectList.push(object);
         scene.add(object);
+        transformControl.attach(object)
 
     }
     catch (err) {
@@ -133,7 +134,7 @@ function run()
     renderer.render( scene, camera );
 
     // Spin the cube for next frame
-    animate();
+    //animate();
 
     // Update the camera controller
     orbitControls.update();
@@ -166,21 +167,36 @@ function createScene(canvas)
 
     // Add  a camera so we can view the scene
     camera = new THREE.PerspectiveCamera( 45, canvas.width / canvas.height, 1, 4000 );
-    camera.position.set(15, 3, 6);
+    camera.position.set(15, 3, 68);
     scene.add(camera);
 
     orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
     orbitControls.target.y=6;
     orbitControls.target.x=0;
     orbitControls.target.z=0;
-    
-    /*transformControls = new THREE.TransformControls(camera, renderer.domElement);
-    transformControls.setSize(1);
-    transformControls.addEventListener( 'change', run);
+    //Pone la cámara auna distancia específica
+    orbitControls.minDistance=16;
+    orbitControls.maxDistance=16;
+    orbitControls.rotateSpeed=3;
+    //Bloquea la cámra a una distancia específica
+    orbitControls.minPolarAngle = Math.PI/2;
+    orbitControls.maxPolarAngle = Math.PI/2;
+    //Bloquea la rotación de la cámara
+    orbitControls.enablePan=false;
+    orbitControls.enableRotate=false;
 
-    transformControls.addEventListener( 'dragging-changed', ( event ) => {
-        orbitControls.enabled = ! event.value
-    });*/
+    transformControl = new THREE.TransformControls(camera, renderer.domElement);
+    transformControl.setMode('rotate')
+    
+    transformControl.addEventListener( 'change', renderer.render( scene, camera ));
+    transformControl.setSize(500);
+    transformControl.showX = false;
+    transformControl.showY = true;
+    transformControl.showZ = false;
+    transformControl.addEventListener( 'dragging-changed', ( event ) => {
+        orbitControls.enabled = ! event.value;
+    });
+    scene.add(transformControl);
     // Create a group to hold all the objects
     root = new THREE.Object3D;
     
@@ -235,7 +251,7 @@ function createScene(canvas)
     mesh.position.y = 0;
     mesh.castShadow = false;
     mesh.receiveShadow = true;
-    //transformControls.attach(mesh);
+    //transformControl.attach(mesh);
     group.add( mesh );
     
     

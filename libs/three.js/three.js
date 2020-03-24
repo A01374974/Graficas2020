@@ -356,7 +356,7 @@
 
 				for ( var i = 0, l = array.length; i < l; i ++ ) {
 
-					array[ i ].call( this, event );
+					//array[ i ].call( this, event );
 
 				}
 
