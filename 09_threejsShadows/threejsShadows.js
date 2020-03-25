@@ -201,7 +201,7 @@ function createScene(canvas)
     root = new THREE.Object3D;
     
     // Add a directional light to show off the object
-    directionalLight = new THREE.DirectionalLight( 0x000000, 1);
+    directionalLight = new THREE.DirectionalLight( 0x808080, 1);
 
     // Create and add all the lights
     directionalLight.position.set(6, 1, 1);
@@ -209,7 +209,7 @@ function createScene(canvas)
     directionalLight.castShadow = true;
     root.add(directionalLight);
 
-    spotLight = new THREE.SpotLight (0x000000);
+    spotLight = new THREE.SpotLight (0X808080);
     spotLight.position.set(4, 15, 0);
     spotLight.target.position.set(4, 0, 0);
     root.add(spotLight);
@@ -223,7 +223,7 @@ function createScene(canvas)
     spotLight.shadow.mapSize.width = SHADOW_MAP_WIDTH;
     spotLight.shadow.mapSize.height = SHADOW_MAP_HEIGHT;
 
-    ambientLight = new THREE.AmbientLight ( 0xffffff, 0.8);
+    ambientLight = new THREE.AmbientLight ( 0x808080 , 0.8);
     root.add(ambientLight);
     
     // Create the objects
