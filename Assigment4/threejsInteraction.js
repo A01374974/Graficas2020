@@ -21,7 +21,7 @@ let pointLight = null;
 
 let mapUrl = "../images/checker_large.gif";
 
-//let objModelUrl = {obj:'../models/obj/elefante/elefante.obj', map:'../models/obj/elefante/Textures/elefantefull.png', normalMap:'../models/obj/elefante/Textures/elefantefull.png', specularMap: '../models/obj/elefante/Textures/elefantefull.png'};
+let objElefantlUrl = {obj:'../models/obj/elefante/elefante.obj', map:'../models/obj/elefante/Textures/elefantefull.png', normalMap:'../models/obj/elefante/Textures/elefantefull.png', specularMap: '../models/obj/elefante/Textures/elefantefull.png'};
 
 let objModelUrl = {obj:'../models/obj/leon/12273_Lion_v1_l3.obj', map:'../models/obj/leon/12273_Lion_Diffuse.jpg', normalMap:'../models/obj/leon/12273_Lion_Diffuse.jpg', specularMap: '../models/obj/leon/12273_Lion_Diffuse.jpg'};
 function promisifyLoader ( loader, onProgress ) 
@@ -64,6 +64,41 @@ async function loadJson(url, objectList)
     }
 }
 
+async function loadElefante(objElefantelUrl,objectList)
+{
+
+    const objPromiseLoader = promisifyLoader(new THREE.OBJLoader());
+
+    try {
+        
+        
+        const object = await objPromiseLoader.load(objModelUrl.obj);
+        
+        let texture = objModelUrl.hasOwnProperty('map') ? new THREE.TextureLoader().load(objModelUrl.map) : null;
+        let normalMap = objModelUrl.hasOwnProperty('normalMap') ? new THREE.TextureLoader().load(objModelUrl.normalMap) : null;
+            
+            
+        object.traverse(function (child) {
+            if (child instanceof THREE.Mesh) {
+                child.castShadow = true;
+                child.receiveShadow = true;
+                child.material.map = texture;
+                child.material.normalMap = normalMap;
+            }
+        });
+
+        object.scale.set(0.01, 0.01, 0.01);
+        
+        object.position.set(0,0,0);
+        scene.add(object);
+        
+
+    }
+    catch (err) {
+        return onError(err);
+    }
+}
+
 async function loadObj(objModelUrl, objectList)
 {
     const objPromiseLoader = promisifyLoader(new THREE.OBJLoader());
@@ -71,7 +106,7 @@ async function loadObj(objModelUrl, objectList)
     try {
         let texture = objModelUrl.hasOwnProperty('map') ? new THREE.TextureLoader().load(objModelUrl.map) : null;
         let normalMap = objModelUrl.hasOwnProperty('normalMap') ? new THREE.TextureLoader().load(objModelUrl.normalMap) : null;
-        for ( let i = 0; i < 10; i ++ )  {
+        
             const object = await objPromiseLoader.load(objModelUrl.obj);
             
             
@@ -84,13 +119,13 @@ async function loadObj(objModelUrl, objectList)
                 }
             });
 
-            object.scale.set(0.4, 0.4, 0.4);
-            object.name = 'leon' + i;
+            object.scale.set(1, 1, 1);
+            object.name = 'leon';
             object.position.set(Math.random() * 200 - 100,  300-100*Math.random() - 100, -100-Math.random()*100+Math.random()*70);
             objectList.push(object);
             
             scene.add(object);
-        }
+    
     }
     catch (err) {
         return onError(err);
@@ -141,7 +176,7 @@ function createScene(canvas)
     
     ambientLight = new THREE.AmbientLight ( 0xFFFFFF, 0.95);
     root.add(ambientLight);
-
+    loadElefante(objElefantlUrl,objectList)
     loadObj(objModelUrl, objectList);
     // floor
 
