@@ -56,7 +56,7 @@ function promisifyLoader ( loader, onProgress )
 
 const onError = ( ( err ) => { console.error( err ); } );
 
-/*async function loadJson(url, objectList)
+async function loadJson(url, objectList)
 {
     const jsonPromiseLoader = promisifyLoader(new THREE.ObjectLoader());
     
@@ -75,7 +75,7 @@ const onError = ( ( err ) => { console.error( err ); } );
     catch (err) {
         return onError(err);
     }
-}*/
+}
 
 async function loadObj(objModelUrl, objectList)
 {
