@@ -1,29 +1,26 @@
 let container;
-let camera, scene, raycaster, renderer, group,root;
+let camera, scene, raycaster, renderer,root;
 
 let mouse = new THREE.Vector2(), INTERSECTED, CLICKED;
 let radius = 100, theta = 0;
-let transformControls,
-
-
-objectList = [];
+let objectList=[];
 let objLoader = null, jsonLoader = null;
 
 let fract = 0;
 let deltat = 1000;
 let duration = 20000; // ms
 let currentTime = Date.now();
-
 let directionalLight = null;
 let spotLight = null;
 let ambientLight = null;
 let pointLight = null;
 
-let mapUrl = "../images/checker_large.gif";
-
 let objElefantlUrl = {obj:'../models/obj/elefante/elefante.obj', map:'../models/obj/elefante/Textures/elefantefull.png', normalMap:'../models/obj/elefante/Textures/elefantefull.png', specularMap: '../models/obj/elefante/Textures/elefantefull.png'};
 
-let objModelUrl = {obj:'../models/obj/leon/12273_Lion_v1_l3.obj', map:'../models/obj/leon/12273_Lion_Diffuse.jpg', normalMap:'../models/obj/leon/12273_Lion_Diffuse.jpg', specularMap: '../models/obj/leon/12273_Lion_Diffuse.jpg'};
+let objModelUrl = {obj:'../models/obj/leon/12273_Lion_v1_l3.obj', map:'../models/obj/leon/12273_Lion_Diffuse.jpg',normalMap:'../models/obj/leon/12273_Lion_Diffuse.jpg', specularMap: '../models/obj/leon/12273_Lion_Diffuse.jpg'};
+
+let floorUrl = "../images/checker_large.gif";
+
 function promisifyLoader ( loader, onProgress ) 
 {
     function promiseLoader ( url ) {
@@ -40,8 +37,6 @@ function promisifyLoader ( loader, onProgress )
       load: promiseLoader,
     };
 }
-
-const onError = ( ( err ) => { console.error( err ); } );
 
 async function loadJson(url, objectList)
 {
@@ -64,7 +59,7 @@ async function loadJson(url, objectList)
     }
 }
 
-async function loadElefante(objElefantelUrl,objectList)
+async function loadElefante(objModelUrl,objectList)
 {
 
     const objPromiseLoader = promisifyLoader(new THREE.OBJLoader());
@@ -87,9 +82,9 @@ async function loadElefante(objElefantelUrl,objectList)
             }
         });
 
-        object.scale.set(0.01, 0.01, 0.01);
+        object.scale.set(8, 8, 8);
         
-        object.position.set(0,0,0);
+        object.position.set(20,30,-187);
         scene.add(object);
         
 
@@ -99,6 +94,7 @@ async function loadElefante(objElefantelUrl,objectList)
     }
 }
 
+const onError = ( ( err ) => { console.error( err ); } );
 async function loadObj(objModelUrl, objectList)
 {
     const objPromiseLoader = promisifyLoader(new THREE.OBJLoader());
@@ -119,9 +115,11 @@ async function loadObj(objModelUrl, objectList)
                 }
             });
 
-            object.scale.set(1, 1, 1);
+            object.scale.set(0.2, 0.2, 0.2);
             object.name = 'leon';
-            object.position.set(Math.random() * 200 - 100,  300-100*Math.random() - 100, -100-Math.random()*100+Math.random()*70);
+            object.position.set(60,60,-183)
+            //object.position.set(Math.random() * 200 - 100,  300-100*Math.random() - 100, -100-Math.random()*100+Math.random()*70);
+            console.log(object.position)
             objectList.push(object);
             
             scene.add(object);
@@ -150,7 +148,6 @@ function animate()
             }
         }
 }
-
 function run() 
 {
     requestAnimationFrame(function() { run(); });
@@ -158,6 +155,7 @@ function run()
     animate();
 
 }
+
 function createScene(canvas) 
 {
     renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
@@ -165,77 +163,47 @@ function createScene(canvas)
     // Set the viewport size
     renderer.setSize(window.innerWidth, window.innerHeight);
 
+    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
+    
     scene = new THREE.Scene();
+    scene.add(camera)
     scene.background = new THREE.Color( 0xf0f0f0 );
     
-    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 10000 );
-    camera.position.set(0,-1,20)
-    scene.add(camera)
+    let light = new THREE.DirectionalLight( 0xffffff, 1 );
+    light.position.set( 1, 1, 1 );
+    scene.add( light );
     
-    root = new THREE.Object3D;
-    
-    ambientLight = new THREE.AmbientLight ( 0xFFFFFF, 0.95);
-    root.add(ambientLight);
-    loadElefante(objElefantlUrl,objectList)
-    loadObj(objModelUrl, objectList);
     // floor
 
-    let map = new THREE.TextureLoader().load(mapUrl);
+    let map = new THREE.TextureLoader().load(floorUrl);
     map.wrapS = map.wrapT = THREE.RepeatWrapping;
     map.repeat.set(8, 8);
 
-    group = new THREE.Object3D;
-    root.add(group);
-    
-    scene.add(root)
+    let floorGeometry = new THREE.PlaneGeometry( 2000, 2000, 100, 100 );
+    let floor = new THREE.Mesh(floorGeometry, new THREE.MeshPhongMaterial({color:0xffffff, map:map, side:THREE.DoubleSide}));
+    floor.rotation.x = -Math.PI / 2;
+    scene.add( floor );
 
+    let geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
     
-    
+    /*for ( let i = 0; i < 10; i ++ ) 
+    {
+        //La característica del Lamber es que no tiene reflejo
+        let object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+        
+        object.name = 'Cube' + i;
+        object.position.set(Math.random() * 200 - 100, Math.random() * 200 - 100, -200);
+        
+        scene.add( object );
+    }*/
+    loadElefante(objElefantlUrl,objectList)
+    loadObj(objModelUrl, objectList);
     raycaster = new THREE.Raycaster();
         
     document.addEventListener('mousemove', onDocumentMouseMove);
     document.addEventListener('mousedown', onDocumentMouseDown);
     
     window.addEventListener( 'resize', onWindowResize);
-    // Create a group to hold all the objects
-   /*root = new THREE.Object3D;
-     // Create the objects
-     loadObj(objModelUrl, objectList);
-
-     //loadJson(jsonModelUrl.url, objectList);
- 
-     // Create a group to hold the objects
-     group = new THREE.Object3D;
-     root.add(group);
- 
-     
- 
-     let color = 0xffffff;
- 
-     // let asteroid = new THREE.Object3D();
-     // Put in a ground plane to show off the lighting
-     
-     let mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({color:color, map:map, side:THREE.DoubleSide}));
- 
-     mesh.rotation.x = -Math.PI / 2;
-     mesh.position.y = 0;
-     mesh.castShadow = false;
-     mesh.receiveShadow = true;
-     //transformControl.attach(mesh);
-     group.add( mesh );
-     
-     
-     scene.add( root );*/
-     
-     
-    //loadJson(jsonModelUrl.url, objectList);
-
-    // Create a group to hold the objects
-   
-
-    
-   
-
 }
 
 function onWindowResize() 
