@@ -1,6 +1,6 @@
 let container;
 let camera, scene, raycaster, renderer,root;
-
+let life;
 let mouse = new THREE.Vector2(), INTERSECTED, CLICKED;
 let radius = 100, theta = 0;
 let objectList=[];
@@ -84,7 +84,7 @@ async function loadElefante(objModelUrl,objectList)
 
         object.scale.set(8, 8, 8);
         
-        object.position.set(20,30,-187);
+        object.position.set(20,10,-187);
         scene.add(object);
         
 
@@ -102,7 +102,7 @@ async function loadObj(objModelUrl, objectList)
     try {
         let texture = objModelUrl.hasOwnProperty('map') ? new THREE.TextureLoader().load(objModelUrl.map) : null;
         let normalMap = objModelUrl.hasOwnProperty('normalMap') ? new THREE.TextureLoader().load(objModelUrl.normalMap) : null;
-        
+        for ( let i = 0; i < 2; i ++ )  {
             const object = await objPromiseLoader.load(objModelUrl.obj);
             
             
@@ -115,38 +115,118 @@ async function loadObj(objModelUrl, objectList)
                 }
             });
 
-            object.scale.set(0.2, 0.2, 0.2);
+            object.scale.set(8, 8, 8);
             object.name = 'leon';
-            object.position.set(60,60,-183)
-            //object.position.set(Math.random() * 200 - 100,  300-100*Math.random() - 100, -100-Math.random()*100+Math.random()*70);
+            //object.position.set(60,60,-183)
+            //object.position.set(Math.floor(Math.random()*(90+90))-90, Math.floor(Math.random()*(100+90))-90, -183);
+            object.position.set(window.innerWidth/9, Math.floor(Math.random()*(100+90))-90, -183);
             console.log(object.position)
             objectList.push(object);
+            console.log()
             
             scene.add(object);
-    
+        }
+        numeroLeon=Math.floor(Math.random()*(4+2))+2
+        console.log(numeroLeon)
+        for ( let i = 0; i < numeroLeon; i ++ )  {
+            const object = await objPromiseLoader.load(objModelUrl.obj);
+            
+            
+            object.traverse(function (child) {
+                if (child instanceof THREE.Mesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.material.map = texture;
+                    child.material.normalMap = normalMap;
+                }
+            });
+
+            object.scale.set(8, 8, 8);
+            object.name = 'elefante';
+            //object.position.set(60,60,-183)
+            //object.position.set(Math.floor(Math.random()*(90+90))-90, Math.floor(Math.random()*(100+90))-90, -183);
+            object.position.set(Math.floor(Math.random()*(90+90))-90, -90, -183);
+            console.log(object.position)
+            objectList.push(object);
+            console.log()
+            
+            scene.add(object);
+        }
+        let numeroLeon2=Math.floor(Math.random()*(4+2))+2
+        for ( let i = 0; i < numeroLeon2; i ++ )  {
+            const object = await objPromiseLoader.load(objModelUrl.obj);
+            
+            
+            object.traverse(function (child) {
+                if (child instanceof THREE.Mesh) {
+                    child.castShadow = true;
+                    child.receiveShadow = true;
+                    child.material.map = texture;
+                    child.material.normalMap = normalMap;
+                }
+            });
+
+            object.scale.set(8, 8, 8);
+            object.name = 'elefante';
+            //object.position.set(60,60,-183)
+            //object.position.set(Math.floor(Math.random()*(90+90))-90, Math.floor(Math.random()*(100+90))-90, -183);
+            object.position.set(Math.floor(Math.random()*(90+90))-90, 90, -183);
+            console.log(object.position)
+            objectList.push(object);
+            console.log()
+            
+            scene.add(object);
+        }
     }
     catch (err) {
         return onError(err);
     }
 }
-function animate() 
-{
+function animate() {
+
     let now = Date.now();
     let deltat = now - currentTime;
     currentTime = now;
     let fract = deltat / duration;
-    let angle = Math.PI * 2 * fract;
+    let angle = Math.PI * fract;
 
-    for(object of objectList)
-        if(object){
-            object.rotation.y += angle / 2;
+    for(object of objectList){
+        if(object.up){
+            object.position.y += 0.1;
 
+            if(object.position.y > -2.5){
+                object.up = false;
+            }
 
-
-            if(object.position.y > -5){
-                object.position.y-=0.1;
+        }else{
+            object.position.y -= 0.1;
+            if(object.position.y < 2){
+                object.up = true;
             }
         }
+
+        
+            object.rotation.y += angle ;
+
+            if(object.position.x >=0){
+                object.position.x-=0.1;
+
+            }else if(object.position.x <0){
+                object.position.x+=0.1;
+
+            }else{
+
+                if(object.position.x > 0){
+                    object.position.x-=0.1;
+                }else if(object.position.x <= 0){
+                    object.position.x+=0.1;
+                }
+            }
+            
+            
+        
+        }
+
 }
 function run() 
 {
@@ -160,6 +240,8 @@ function createScene(canvas)
 {
     renderer = new THREE.WebGLRenderer( { canvas: canvas, antialias: true } );
 
+   
+
     // Set the viewport size
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -167,7 +249,8 @@ function createScene(canvas)
     
     scene = new THREE.Scene();
     scene.add(camera)
-    scene.background = new THREE.Color( 0xf0f0f0 );
+    let textureBuild = new THREE.TextureLoader().load( '../models/obj/leon/sabana-africana-del-paisaje-puesta-sol-el-lugar-para-texto-130883255.jpg');
+    scene.background =textureBuild;
     
     let light = new THREE.DirectionalLight( 0xffffff, 1 );
     light.position.set( 1, 1, 1 );
@@ -196,8 +279,8 @@ function createScene(canvas)
         
         scene.add( object );
     }*/
-    loadElefante(objElefantlUrl,objectList)
-    loadObj(objModelUrl, objectList);
+    //loadElefante(objElefantlUrl,objectList)
+    loadObj(objElefantlUrl, objectList);
     raycaster = new THREE.Raycaster();
         
     document.addEventListener('mousemove', onDocumentMouseMove);
@@ -280,6 +363,7 @@ function run()
 {
     requestAnimationFrame( run );
     render();
+    animate()
 }
 
 function render() 
