@@ -212,12 +212,24 @@ function animate() {
 
             }
             
-                
+             
             
             
             
         }
-
+        for(object of objectList){
+            if(object.position.x>=-3&&object.position.x<=3&&object.position.y>=-3&&object.position.y<=3){
+                if(salud>=0.5){
+                    salud-=0.001
+                     $("#health").html("HEALTH: " + salud.toFixed(1) );
+                     
+                 }else{
+                     gameOver = true;
+                     
+                    
+                 }
+            }
+        }
 
 }
 function run() 
